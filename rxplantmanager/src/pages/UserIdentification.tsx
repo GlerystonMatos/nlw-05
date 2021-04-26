@@ -1,6 +1,6 @@
 import fonts from '../styles/fonts';
+import colors from '../styles/colors';
 import React, { useState } from 'react';
-import colors from '../../styles/colors';
 import { Button } from '../components/Button';
 import { useNavigation } from '@react-navigation/core';
 
