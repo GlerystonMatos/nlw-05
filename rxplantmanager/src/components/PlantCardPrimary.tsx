@@ -9,21 +9,22 @@ import {
     Text,
 } from 'react-native';
 
-interface PlantProps extends RectButtonProps {
+interface CardPlantProps extends RectButtonProps {
     data: {
         name: string,
         photo: string,
     }
 }
 
-export function PlantCardPrimary({ data, ...rest }: PlantProps) {
+export function PlantCardPrimary({ data, ...rest }: CardPlantProps) {
     return (
         <RectButton
             style={[styles.conteiner]}
             {...rest}>
             <SvgFromUri
                 uri={data.photo}
-                width={70} height={70} />
+                width={70}
+                height={70} />
             <Text
                 style={[styles.text]}>
                 {data.name}

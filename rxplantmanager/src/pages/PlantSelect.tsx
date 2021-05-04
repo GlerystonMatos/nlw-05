@@ -2,8 +2,10 @@ import api from '../services/api';
 import fonts from '../styles/fonts';
 import colors from '../styles/colors';
 import { Load } from '../components/Load';
+import { PlantProps } from '../libs/storage';
 import { Header } from '../components/Header';
 import React, { useEffect, useState } from 'react';
+import { useNavigation } from '@react-navigation/core';
 import { EnviromentButton } from '../components/EnviromentButton';
 import { PlantCardPrimary } from '../components/PlantCardPrimary';
 
@@ -20,28 +22,16 @@ interface EnviromentProps {
     title: string;
 }
 
-interface PlantProps {
-    id: string;
-    name: string;
-    about: string;
-    water_tips: string;
-    photo: string;
-    environments: [string];
-    frequency: {
-        times: number;
-        repeat_every: string;
-    }
-}
-
 export function PlantSelect() {
     const [page, setPage] = useState(1);
     const [loading, setLoading] = useState(true);
-    const [loadedAll, setLoadedAll] = useState(false);
     const [loadingMore, setLoadingMore] = useState(false);
     const [plants, setPlants] = useState<PlantProps[]>([]);
     const [enviroments, setEnviroment] = useState<EnviromentProps[]>([]);
     const [enviromentsSelected, setEnviromentsSelected] = useState('all');
     const [filteredPlants, setFilteredPlants] = useState<PlantProps[]>([]);
+
+    const navigation = useNavigation();
 
     function handleEnviromentsSelected(enviroment: string) {
         setEnviromentsSelected(enviroment);
@@ -84,6 +74,10 @@ export function PlantSelect() {
         fetchPlants();
     }
 
+    function handlePlantSelect(plant: PlantProps) {
+        navigation.navigate('PlantSave', { plant });
+    }
+
     useEffect(() => {
         async function fetchEnviroment() {
             const { data } = await api
@@ -118,7 +112,7 @@ export function PlantSelect() {
                     horizontal
                     data={enviroments}
                     showsHorizontalScrollIndicator={false}
-                    keyExtractor={(item) => item.key.toString()}
+                    keyExtractor={(item) => String(item.key)}
                     contentContainerStyle={styles.enviromentList}
                     renderItem={({ item }) => (
                         <EnviromentButton
@@ -136,10 +130,11 @@ export function PlantSelect() {
                     onEndReached={({ distanceFromEnd }) =>
                         handleFetchMore(distanceFromEnd)
                     }
-                    keyExtractor={(item) => item.id.toString()}
+                    keyExtractor={(item) => String(item.id)}
                     renderItem={({ item }) => (
                         <PlantCardPrimary
-                            data={item} />
+                            data={item}
+                            onPress={() => handlePlantSelect(item)} />
                     )}
                     ListFooterComponent={
                         loadingMore
