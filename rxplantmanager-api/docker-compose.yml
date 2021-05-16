@@ -1,0 +1,20 @@
+version: '3.9'
+services:
+  najaapi:
+    image: rxplantmanager:1.0
+    restart: on-failure
+    container_name: rxplantmanager-api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 5002:80
+      - 5003:443
+    volumes:
+      - ./certificate:/app/certificate
+      - ./temp-keys:/root/.aspnet/DataProtection-Keys
+    environment:
+      - ASPNETCORE_URLS=https://+:443;http://+:80
+      - ASPNETCORE_HTTPS_PORT=5003
+      - Kestrel__Certificates__Default__Path=/app/certificate/certificate.pfx
+      - Kestrel__Certificates__Default__Password=1234 

@@ -1,0 +1,12 @@
+{
+  "name": "rxplantmanager",
+  "displayName": "rxplantmanager",
+  "expo": {
+    "name": "rxplantmanager",
+    "slug": "rxplantmanager",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  }
+}
