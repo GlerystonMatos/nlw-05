@@ -2,6 +2,7 @@ import React from 'react';
 import fonts from '../styles/fonts';
 import colors from '../styles/colors';
 import wateringImg from '../assets/watering.png';
+import { useNavigation } from '@react-navigation/core';
 import Feather from 'react-native-vector-icons/Feather';
 
 import {
@@ -16,8 +17,10 @@ import {
 } from 'react-native';
 
 export function Welcome() {
+    const navigation = useNavigation();
 
     function handleStart() {
+        navigation.navigate('UserIdentification');
     }
 
     return (
