@@ -100,12 +100,10 @@ export function PlantSelect() {
     }, []);
 
     useEffect(() => {
-        setTimeout(() => {
-            fetchPlants();
-        }, 50000);
-    }, []);
+        fetchPlants();
+    }, [])
 
-    if (loading) {
+    if (loading)
         return (
             <SafeAreaView
                 style={styles.conteinerLoad}>
@@ -116,7 +114,6 @@ export function PlantSelect() {
                 <Load />
             </SafeAreaView>
         )
-    }
 
     return (
         <SafeAreaView
