@@ -1,6 +1,8 @@
 import api from '../services/api';
 import fonts from '../styles/fonts';
 import colors from '../styles/colors';
+import { Load } from '../components/Load';
+import { PlantProps } from '../libs/storage';
 import { Header } from '../components/Header';
 import React, { useEffect, useState } from 'react';
 import { EnviromentsButton } from '../components/EnviromentButton';
@@ -21,11 +23,56 @@ interface EnviromentsProps {
 }
 
 export function PlantSelect() {
+    const [page, setPage] = useState<number>(1);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [plants, setPlants] = useState<PlantProps[]>([]);
+    const [loadingMore, setLoadingMore] = useState<boolean>(false);
+    const [filteredPlants, setFilteredPlants] = useState<PlantProps[]>([]);
     const [enviroments, setEnviroments] = useState<EnviromentsProps[]>([]);
     const [enviromentSelected, setEnviromentSelected] = useState<string>('all');
 
     function handleEnviromentsSelected(enviroment: string) {
         setEnviromentSelected(enviroment);
+
+        if (enviroment === 'all') {
+            return setFilteredPlants(plants);
+        }
+
+        const filtered = plants.filter(plants =>
+            plants.Environments.includes(enviroment));
+
+        setFilteredPlants(filtered);
+    }
+
+    async function fetchPlants() {
+        const quantidadeRegistrosPorPagina = 8;
+        const quantidadeParaPular = page
+            ? ((page * quantidadeRegistrosPorPagina) - quantidadeRegistrosPorPagina)
+            : 0;
+
+        let data: PlantProps[];
+        data = await api.get(`/OData/Plant?$expand=frequency&$top=${quantidadeRegistrosPorPagina}&$skip=${quantidadeParaPular}&$orderby=name asc`)
+            .then(response => {
+                return response.data.value;
+            })
+            .catch(error => {
+                Alert.alert('Não foi possível obter a lista das plantas. 😥', String(error));
+                return [];
+            });
+
+        if (!data)
+            return setLoading(true);
+
+        if (page > 1) {
+            setPlants(oldValue => [...oldValue, ...data]);
+            setFilteredPlants(oldValue => [...oldValue, ...data]);
+        } else {
+            setPlants(data);
+            setFilteredPlants(data);
+        }
+
+        setLoading(false);
+        setLoadingMore(false);
     }
 
     useEffect(() => {
@@ -51,6 +98,25 @@ export function PlantSelect() {
 
         fetchEnviroment();
     }, []);
+
+    useEffect(() => {
+        setTimeout(() => {
+            fetchPlants();
+        }, 50000);
+    }, []);
+
+    if (loading) {
+        return (
+            <SafeAreaView
+                style={styles.conteinerLoad}>
+
+                <StatusBar
+                    barStyle='dark-content'
+                    backgroundColor={colors.background} />
+                <Load />
+            </SafeAreaView>
+        )
+    }
 
     return (
         <SafeAreaView
@@ -81,7 +147,16 @@ export function PlantSelect() {
                         )} />
                 </View>
                 <View style={styles.plants}>
-
+                    <FlatList
+                        numColumns={2}
+                        data={filteredPlants}
+                        onEndReachedThreshold={0.1}
+                        showsVerticalScrollIndicator={false}
+                        keyExtractor={(item) => String(item.Id)}
+                        renderItem={({ item }) => (
+                            <Text>{item.Name}</Text>
+                        )}
+                    />
                 </View>
             </View>
 
@@ -90,6 +165,9 @@ export function PlantSelect() {
 }
 
 const styles = StyleSheet.create({
+    conteinerLoad: {
+        flex: 1,
+    },
     conteinerView: {
         flex: 1,
     },
