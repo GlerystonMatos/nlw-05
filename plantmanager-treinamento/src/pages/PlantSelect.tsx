@@ -5,6 +5,8 @@ import { Load } from '../components/Load';
 import { PlantProps } from '../libs/storage';
 import { Header } from '../components/Header';
 import React, { useEffect, useState } from 'react';
+import { useNavigation } from '@react-navigation/core';
+import { PlantCardPrimary } from '../components/PlantCardPrimary';
 import { EnviromentsButton } from '../components/EnviromentButton';
 
 import {
@@ -15,6 +17,7 @@ import {
     StatusBar,
     StyleSheet,
     SafeAreaView,
+    ActivityIndicator,
 } from 'react-native';
 
 interface EnviromentsProps {
@@ -30,6 +33,8 @@ export function PlantSelect() {
     const [filteredPlants, setFilteredPlants] = useState<PlantProps[]>([]);
     const [enviroments, setEnviroments] = useState<EnviromentsProps[]>([]);
     const [enviromentSelected, setEnviromentSelected] = useState<string>('all');
+
+    const navigation = useNavigation();
 
     function handleEnviromentsSelected(enviroment: string) {
         setEnviromentSelected(enviroment);
@@ -75,6 +80,19 @@ export function PlantSelect() {
         setLoadingMore(false);
     }
 
+    function handleFetchMore(distance: number) {
+        if (distance < 1)
+            return;
+
+        setLoadingMore(true);
+        setPage(oldValue => oldValue + 1);
+        fetchPlants();
+    }
+
+    function handlePlantSelect(plant: PlantProps) {
+        navigation.navigate('PlantSave', { plant });
+    }
+
     useEffect(() => {
         async function fetchEnviroment() {
             let data: EnviromentsProps[];
@@ -107,7 +125,6 @@ export function PlantSelect() {
         return (
             <SafeAreaView
                 style={styles.conteinerLoad}>
-
                 <StatusBar
                     barStyle='dark-content'
                     backgroundColor={colors.background} />
@@ -149,10 +166,20 @@ export function PlantSelect() {
                         data={filteredPlants}
                         onEndReachedThreshold={0.1}
                         showsVerticalScrollIndicator={false}
+                        onEndReached={({ distanceFromEnd }) => {
+                            handleFetchMore(distanceFromEnd);
+                        }}
                         keyExtractor={(item) => String(item.Id)}
                         renderItem={({ item }) => (
-                            <Text>{item.Name}</Text>
+                            <PlantCardPrimary
+                                data={item}
+                                onPress={() => handlePlantSelect(item)} />
                         )}
+                        ListFooterComponent={
+                            loadingMore
+                                ? <ActivityIndicator color={colors.green} />
+                                : <></>
+                        }
                     />
                 </View>
             </View>
