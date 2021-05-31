@@ -1,22 +1,54 @@
 import fonts from '../styles/fonts';
+import { pt } from 'date-fns/locale';
 import colors from '../styles/colors';
-import React, { useState } from 'react';
+import { formatDistance } from 'date-fns';
 import { Load } from '../components/Load';
 import { Header } from '../components/Header';
 import waterdrop from '../assets/waterdrop.png';
+import React, { useEffect, useState } from 'react';
+import { loadPlant, PlantProps } from '../libs/storage';
+import { PlantCardSecondary } from '../components/PlantCardSecondary';
 
 import {
     Text,
     View,
     Image,
+    FlatList,
     StatusBar,
     StyleSheet,
     SafeAreaView,
 } from 'react-native';
 
 export function MyPlants() {
-    const [loading, setLoading] = useState<boolean>(false);
+    const [loading, setLoading] = useState<boolean>(true);
     const [nextWaterd, setNextWaterd] = useState<string>('');
+    const [myPlants, setMyPlants] = useState<PlantProps[]>([]);
+
+    async function loadStorageData() {
+        const plantsStoraged = await loadPlant();
+        setNextWaterd('Não existem plantas para serem regadas.');
+
+        if (plantsStoraged.length > 0) {
+            const nextTime = formatDistance(
+                new Date(plantsStoraged[0].DateTimeNotification).getTime(),
+                new Date().getTime(),
+                { locale: pt }
+            );
+
+            setNextWaterd(`Não esqueça de regar a ${plantsStoraged[0].Name} à ${nextTime}.`);
+            setMyPlants(plantsStoraged);
+        }
+
+        setLoading(false);
+    }
+
+    function handleRemove(plant: PlantProps) {
+
+    }
+
+    useEffect(() => {
+        loadStorageData();
+    }, []);
 
     if (loading)
         return (
@@ -51,7 +83,16 @@ export function MyPlants() {
                     <Text style={styles.plantsTitle}>
                         Próximas regadas
                     </Text>
-                    {/* FlatList */}
+                    <FlatList
+                        data={myPlants}
+                        showsVerticalScrollIndicator={false}
+                        contentContainerStyle={{ flex: 1, }}
+                        keyExtractor={(item) => String(item.Id)}
+                        renderItem={({ item }) => (
+                            <PlantCardSecondary
+                                data={item}
+                                onRemove={() => handleRemove(item)} />
+                        )} />
                 </View>
             </View>
         </SafeAreaView>
