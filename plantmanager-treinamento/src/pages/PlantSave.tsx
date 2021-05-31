@@ -2,12 +2,12 @@ import fonts from '../styles/fonts';
 import colors from '../styles/colors';
 import React, { useState } from 'react';
 import { format, isBefore } from 'date-fns';
-import { PlantProps } from '../libs/storage';
 import { SvgFromUri } from 'react-native-svg';
 import { Button } from '../components/Button';
 import waterdrop from '../assets/waterdrop.png';
-import { useRoute } from '@react-navigation/core';
+import { PlantProps, savePlant } from '../libs/storage';
 import { getBottomSpace } from 'react-native-iphone-x-helper';
+import { useNavigation, useRoute } from '@react-navigation/core';
 import DateTimePicker, { Event } from '@react-native-community/datetimepicker';
 
 import {
@@ -34,6 +34,8 @@ export function PlantSave() {
     const route = useRoute();
     const { plant } = route.params as PlantSaveParams;
 
+    const navigation = useNavigation();
+
     function handleChangeTime(event: Event, dateTime: Date | undefined) {
         if (Platform.OS === 'android') {
             setShowDatePicker(oldValue => !oldValue);
@@ -53,9 +55,20 @@ export function PlantSave() {
         setShowDatePicker(oldValue => !oldValue);
     }
 
-    function handleSave() {
+    async function handleSave() {
         try {
+            await savePlant({
+                ...plant,
+                DateTimeNotification: selectedDateTime,
+            });
 
+            navigation.navigate('Confirmation', {
+                icon: 'hug',
+                title: 'Tudo certo',
+                nextScreen: 'MyPlants',
+                buttonTitle: 'Muito Obrigado :D',
+                subtitle: 'Fique tranquilo que sempre vamos lembrar você de cuidar da sua plantinha com muito cuidado.',
+            });
         } catch {
             Alert.alert('Não foi possível salvar. 😢');
         }

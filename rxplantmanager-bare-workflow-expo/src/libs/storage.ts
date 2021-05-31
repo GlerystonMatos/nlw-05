@@ -65,7 +65,7 @@ export async function savePlant(plant: PlantProps): Promise<void> {
         const newPlant = {
             [plant.Id]: {
                 data: plant,
-                notificationId,
+                notificationId: notificationId,
             }
         }
 

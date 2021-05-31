@@ -102,7 +102,7 @@ export function MyPlants() {
                 <View style={styles.plants}>
                     <Text style={styles.plantsTitle}>
                         Próximas regadas
-                </Text>
+                    </Text>
                     <FlatList
                         data={myPlants}
                         keyExtractor={(item) => String(item.Id)}
