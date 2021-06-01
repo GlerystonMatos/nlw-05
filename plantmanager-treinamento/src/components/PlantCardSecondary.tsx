@@ -29,6 +29,7 @@ export function PlantCardSecondary({ data, onRemove, ...rest }: PlantCardSeconda
                 <Animated.View>
                     <View>
                         <RectButton
+                            onPress={onRemove}
                             style={styles.buttonRemove}>
                             <Feather
                                 size={32}

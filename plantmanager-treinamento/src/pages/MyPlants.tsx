@@ -6,13 +6,14 @@ import { Load } from '../components/Load';
 import { Header } from '../components/Header';
 import waterdrop from '../assets/waterdrop.png';
 import React, { useEffect, useState } from 'react';
-import { loadPlant, PlantProps } from '../libs/storage';
+import { loadPlant, PlantProps, removePlant } from '../libs/storage';
 import { PlantCardSecondary } from '../components/PlantCardSecondary';
 
 import {
     Text,
     View,
     Image,
+    Alert,
     FlatList,
     StatusBar,
     StyleSheet,
@@ -43,7 +44,25 @@ export function MyPlants() {
     }
 
     function handleRemove(plant: PlantProps) {
-
+        Alert.alert('Remover', `Dedeja remover a ${plant.Name}`, [
+            {
+                text: 'Não 🙏',
+                style: 'cancel',
+            },
+            {
+                text: 'Sim 😢',
+                onPress: async () => {
+                    try {
+                        await removePlant(plant.Id);
+                        setMyPlants((oldData) =>
+                            oldData.filter((item) => item.Id !== plant.Id));
+                        loadStorageData();
+                    } catch {
+                        Alert.alert('Não foi possivel remover! 😢');
+                    }
+                }
+            }
+        ]);
     }
 
     useEffect(() => {
@@ -91,7 +110,7 @@ export function MyPlants() {
                         renderItem={({ item }) => (
                             <PlantCardSecondary
                                 data={item}
-                                onRemove={() => handleRemove(item)} />
+                                onRemove={() => { handleRemove(item) }} />
                         )} />
                 </View>
             </View>
